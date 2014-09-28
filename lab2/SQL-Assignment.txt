@@ -1,6 +1,5 @@
-SQL Assignment Submission
+1.
 
-=== 1
 select p.name 
 from events e, results r, players p
 where r.event_id = e.event_id 
@@ -8,16 +7,16 @@ and e.name = '110m Hurdles Men'
 and e.olympic_id = 'SYD2000' 
 and p.player_id = r.player_id
 limit 3;
-**************** RESULT ***************************************************************
+
                    name                   
 ------------------------------------------
  Anier Garcia                            
  Terrence Trammell                       
  Mark Crear                              
 (3 rows)
-=============================================================================================
 
-=== 2
+2. 
+
 select count(name) 
 from players 
 where substr(name, 1,1) = 'A' 
@@ -25,26 +24,26 @@ or substr(name, 1,1) = 'E'
 or substr(name, 1,1) = 'I' 
 or substr(name, 1,1) = 'O' 
 or substr(name, 1,1) = 'U';
-**************** RESULT ***************************************************************
+
  count 
 -------
     84
 (1 row)
-=============================================================================================
 
-=== 3
+3.
+
 select count(name) 
 from Events 
 where olympic_id = 'SYD2000' 
 and result_noted_in = 'points';
-**************** RESULT ***************************************************************
+
  count 
 -------
      2
 (1 row)
-=============================================================================================
 
-=== 4
+4.
+
 with temp as (
     select c.name, count(*)/cast(c.population as float) as ratio
      from results r, events e, countries c, players p
@@ -54,7 +53,7 @@ with temp as (
 select name
 from temp t1
 where 5 > (select count(*) from temp t2 where t1.ratio > t2.ratio);
-**************** RESULT ***************************************************************
+
                    name                   
 ------------------------------------------
  China                                   
@@ -63,23 +62,33 @@ where 5 > (select count(*) from temp t2 where t1.ratio > t2.ratio);
  Nigeria                                 
  France                                  
 (5 rows)
-=============================================================================================
 
-=== 5
+5.
+
 select c.name as "country_name", count(distinct p.name) as "num_players"
 from countries c, players p
 where p.country_id = c.country_id
 group by c.name;
-**************** RESULT ***************************************************************
-<INSERT YOUR RESULT HERE>
-=============================================================================================
 
-=== 6
+               country_name               | num_players 
+------------------------------------------+-------------
+ Algeria                                  |           4
+ Argentina                                |           1
+ Australia                                |          34
+ Austria                                  |           2
+ Barbados                                 |           1
+ Belarus                                  |           7
+ Brazil                                   |           9
+ Bulgaria                                 |           1
+ ...
+
+6.
+
 select name, country_id, birthdate
 from players
 where rtrim(name) like '%d'
 order by country_id asc, birthdate desc;
-**************** RESULT ***************************************************************
+
                    name                   | country_id | birthdate  
 ------------------------------------------+------------+------------
  Abderrahmane Hammad                      | ALG        | 1980-10-04
@@ -96,14 +105,16 @@ order by country_id asc, birthdate desc;
  Shawn Crawford                           | USA        | 1978-11-20
  Jon Drummond                             | USA        | 1972-01-13
 (13 rows)
-=============================================================================================
 
-=== 7
+
+7.
+
 select extract(year from birthdate) as birthyear, count(medal), count(distinct players.player_id)
 from players, results, events
 where players.player_id = results.player_id and medal= 'GOLD' and events.event_id = results.event_id and events.olympic_id = 'ATH2004'
 group by extract(year from birthdate);
-**************** RESULT ***************************************************************
+
+------------------------------------------------------------------------------------------------
  birthyear | count | count 
 -----------+-------+-------
       1971 |     9 |     9
@@ -122,9 +133,9 @@ group by extract(year from birthdate);
       1984 |     7 |     7
       1985 |    11 |     9
 (15 rows)
-=============================================================================================
 
-=== 8
+8.
+
 select name, olympic_id
 from events 
 where is_team_event = 0 and event_id in (
@@ -134,14 +145,15 @@ where is_team_event = 0 and event_id in (
     group by event_id 
     having count(medal) > 1
 );
-**************** RESULT ***************************************************************
+
                    name                   | olympic_id 
 ------------------------------------------+------------
  50m Freestyle Men                        | SYD2000
 (1 row)
-=============================================================================================
 
-=== 9
+
+9. 
+
  drop table temp1;
  create table temp1 as 
        select r.event_id, r.medal, cast(r.result as decimal(12,2)) result, e.name
@@ -161,7 +173,7 @@ create table temp2 as
  select temp1.event_id, (temp2.result - temp1.result) as difference
  from temp1, temp2 
  where temp1.event_id = temp2.event_id;
-**************** RESULT ***************************************************************
+
  event_id | difference 
 ----------+------------
  E13      |       0.04
@@ -173,30 +185,23 @@ create table temp2 as
  E45      |       0.31
  E46      |       0.70
 (8 rows)
-=============================================================================================
 
-=== 10
+
+10.
+
 drop table TeamMedals;
 create table TeamMedals as 
     select distinct country_id, e.event_id, r.medal, r.result
     from results r, events e, players p
     where r.event_id = e.event_id and r.player_id = p.player_id and e.is_team_event = 1;
-**************** RESULT ***************************************************************
- country_id | event_id |  medal  | result 
-------------+----------+---------+--------
- AUS        | E88      | SILVER  | 241.59
- NED        | E81      | SILVER  | 194.36
- RUS        | E99      | SILVER  | 200.16
- AUS        | E94      | GOLD    | 427.05
- GER        | E85      | SILVER  | 213.62
- ...
-=============================================================================================
 
-=== 11
+11.
+
 select c.name, count(p.name)
       from countries c left outer join players p on c.country_id = p.country_id and extract(year from p.birthdate) = 1975
       group by c.name;
-**************** RESULT ***************************************************************
+
+
                    name                   | count 
 ------------------------------------------+-------
  Costa Rica                               |     0
@@ -210,4 +215,5 @@ select c.name, count(p.name)
  Slovenia                                 |     0
  Japan                                    |     3
  ...
-=============================================================================================
+
+
