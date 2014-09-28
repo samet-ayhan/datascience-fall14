@@ -146,7 +146,7 @@ where is_team_event = 0 and event_id in (
  create table temp1 as 
        select r.event_id, r.medal, cast(r.result as decimal(12,2)) result, e.name
        from results r, events e
-       where e.event_id = r.event_id and r.medal like '%GOLD%' and e.name like '%Butterfly%'
+       where e.event_id = r.event_id and r.medal like '%GOLD%' and e.name like '%Butterfly%' and e.olympic_id = 'ATH2004'
        group by r.event_id, r.medal, r.result, e.name
        order by r.event_id;
  
@@ -154,25 +154,21 @@ drop table temp2;
 create table temp2 as 
        select r.event_id, r.medal, cast(r.result as decimal(12,2)) result, e.name
        from results r, events e
-       where e.event_id = r.event_id and r.medal like '%SILVER%' and e.name like '%Butterfly%'
+       where e.event_id = r.event_id and r.medal like '%SILVER%' and e.name like '%Butterfly%' and e.olympic_id = 'ATH2004'
        group by r.event_id, r.medal, r.result, e.name
        order by r.event_id;
 
  select temp1.event_id, (temp2.result - temp1.result) as difference
  from temp1, temp2 
  where temp1.event_id = temp2.event_id;
-**************** RESULT ***************************************************************
+
  event_id | difference 
 ----------+------------
  E13      |       0.04
- E14      |       0.18
  E15      |       0.32
- E16      |       1.36
  E43      |       0.52
- E44      |       0.41
  E45      |       0.31
- E46      |       0.70
-(8 rows)
+(4 rows)
 =============================================================================================
 
 === 10
