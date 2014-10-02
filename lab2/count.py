@@ -10,9 +10,8 @@ reader = DataFileReader(open("countries.avro", "r"), DatumReader())
 df = pd.DataFrame(columns=('name', 'country_id', 'area_sqkm', 'population'))
 
 for country in reader:
-	s = pd.Series(country, index=['name', 'country_id', 'area_sqkm', 'population'])
-	df = df.append(s, ignore_index=True)
+    df = df.append(country, ignore_index=True)
+reader.close()
 
-print df.groupby(df['population'] > 10000000).size()
-#print df[df['population'] > 10000000].count()
+print 'Number of countries with population over 10000000 = ', df[df['population'] > 10000000].groupby('country_id').size().sum()
 reader.close()
