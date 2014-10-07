@@ -1,0 +1,85 @@
+SQL Assignment Submission
+
+=== 1
+create view NumberOfMedals as 
+     select c.name as country_name, count(r.medal) as number_of_medals
+     from results r, countries c, players p
+     where r.player_id = p.player_id and c.country_id = p.country_id 
+     group by c.name
+     order by number_of_medals DESC;
+
+**************** RESULT ***************************************************************
+               country_name               | number_of_medals 
+------------------------------------------+------------------
+ United States                            |              171
+ Australia                                |               76
+ Russia                                   |               45
+ Germany                                  |               30
+ Jamaica                                  |               29
+ ...
+=============================================================================================
+
+=== 2
+<INSERT YOUR QUERY HERE>
+**************** RESULT ***************************************************************
+<INSERT YOUR RESULT HERE>
+=============================================================================================
+
+=== 3
+create function UpdateTeamMedalsFunction() returns trigger as $UpdateTeamMedals$
+declare
+    teamevent int;
+    countryid text;
+begin
+    select is_team_event into teamevent from events e where e.event_id = new.event_id;
+    select country_id into countryid from players p where p.player_id = new.player_id;
+    if teamevent = 1 then
+        insert into TeamMedals values(countryid, new.event_id, new.medal, new.result);
+    end if;
+return new;
+end;
+
+$UpdateTeamMedals$ language plpgsql;
+create trigger UpdateTeamMedals after insert on results for each row execute procedure UpdateTeamMedalsFunction();
+
+
+**************** RESULT ***************************************************************
+insert into results values('E81', 'GREENMAU01', 'NONE', 0);
+INSERT 0 1
+=============================================================================================
+
+=== 4
+DO language plpgsql $$
+    DECLARE
+    vr record;
+    points integer;
+    temp integer;
+
+    BEGIN
+        FOR vr IN select trim(e.name) as ename, array_agg(trim(p.name)) as array from results r, events e, players p where p.country_id = 'USA' and p.player_id =
+        r.player_id and e.event_id = r.event_id and e.olympic_id = 'ATH2004'and r.medal = 'GOLD' group by e.name 
+        LOOP
+            RAISE NOTICE '<event> <name> % </name>', vr.ename;
+            points := 0;
+            if array_upper(vr.array, 1) > 1 then
+                 raise notice '<players>';
+            end if;
+            RAISE NOTICE '<player> % </player>', array_to_string(vr.array, '</player> <player>');
+            if array_upper(vr.array, 1) > 1 then
+                 raise notice '</players>';
+            end if;
+            RAISE NOTICE '</event>';
+        END LOOP;
+
+     END
+$$;
+**************** RESULT ***************************************************************
+NOTICE:  <event> <name> 100m Butterfly Men </name>
+NOTICE:  <player> Michael Phelps </player>
+NOTICE:  </event>
+NOTICE:  <event> <name> 200m Men </name>
+NOTICE:  <player> Shawn Crawford </player>
+NOTICE:  </event>
+...
+=============================================================================================
+
