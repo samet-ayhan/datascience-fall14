@@ -19,10 +19,34 @@ create view NumberOfMedals as
  ...
 =============================================================================================
 
-=== 2
-<INSERT YOUR QUERY HERE>
+=== 2(a)
+select r.a,r.b,r.c,s.d 
+from r,s 
+where r.c = s.c or (r.c is null and s.c is null);
 **************** RESULT ***************************************************************
-<INSERT YOUR RESULT HERE>
+a | b | c | d
+------------+----+----+------------
+a3 | 30 | 30 | d1
+a4 | 0 | | d2
+(2 rows)
+=============================================================================================
+
+=== 2(b)
+select r.a,r.b,r.c,s.d 
+from r full outer join s on r.c = s.c 
+where ((r.c is null and s.c is null) or (r.c is not null and s.c is not null)) 
+union (select r.a,r.b,r.c,s.d 
+from r,s 
+where r.c = s.c or (r.c is null and s.c is null));
+**************** RESULT ***************************************************************
+a | b | c | d
+------------+----+----+------------
+a3 | 30 | 30 | d1
+a4 | 0 | | d2
+a4 | 0 | |
+| | | d2
+(4 rows)
+
 =============================================================================================
 
 === 3

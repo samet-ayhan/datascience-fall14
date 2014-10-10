@@ -45,7 +45,7 @@ create trigger UpdateTeamMedals after insert on results for each row execute pro
 
 **************** RESULT ***************************************************************
 insert into results values('E81', 'GREENMAU01', 'NONE', 0);
-
+INSERT 0 1
 =============================================================================================
 
 === 4
