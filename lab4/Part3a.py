@@ -1,0 +1,27 @@
+fw = open("cmsc-python-output.csv","w")
+fw.write(("Course No.","Section No.","Instructor","Seats","Open","Waitlist","Days","Time","Bldg.","Room No."))
+
+f = open("cmsc.txt","r")
+
+line = f.readline().strip()
+while line!='':
+    course = line
+    line = f.readline().strip()
+    while line != '':
+        section = line
+        instr = f.readline().strip()
+        line = f.readline().strip().split(": ")
+        total = line[1].split(",")[0]
+        open = line[2].split(",")[0]
+        wait = line[3].split(")")[0]
+        line = f.readline().strip().split()
+        day = line[0]
+        time = ' '.join(line[1:])
+        line = f.readline().strip().split()
+        bldg = line[0]
+        room = line[1]
+        writer.writerow((course, section, instr, total, open, wait, day, time, bldg, room))
+        line = f.readline().strip()
+    line = f.readline().strip()
+f.close()
+fw.close()
