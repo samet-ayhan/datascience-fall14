@@ -1,0 +1,10 @@
+sentences = sc.textFile('bible+shakes.nopunc') \
+.glom() \
+.map(lambda x: " ".join(x)) \
+.flatMap(lambda x: x.split("."))
+
+bigrams = sentences.map(lambda x:x.split()) \
+.flatMap(lambda x: [((x[i],x[i+1]),1) for i in range(0,len(x)-1)])
+
+bigrams.take(10)
+
