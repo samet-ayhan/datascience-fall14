@@ -1,0 +1,153 @@
+#!/usr/bin/env python
+
+# Copyright 2013-2014 DataStax, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+import logging
+from decimal import Decimal
+
+log = logging.getLogger()
+#log.setLevel('DEBUG')
+log.setLevel('WARN')
+handler = logging.StreamHandler()
+handler.setFormatter(logging.Formatter("%(asctime)s [%(levelname)s] %(name)s: %(message)s"))
+log.addHandler(handler)
+
+from cassandra import ConsistencyLevel
+from cassandra.cluster import Cluster
+from cassandra.query import SimpleStatement
+
+KEYSPACE = "ctr"
+
+def runQuery(query):
+    try:
+        rows = query.result()
+    except Exception:
+        log.exception(0)
+    return rows
+
+def runQuery1(query):
+    rows = runQuery(query)
+    print('')
+    print('***** Find the ctr (numClicks/numImpressions) for each OwnerId, AdId pair *****')
+    for row in rows:
+	print('(OwnerId: {}, AdId: {}) ctr = {}'.format(row[0], row[1], Decimal(row[2]) / Decimal(row[3])))
+    print('')	
+
+def runQuery2(query):
+    rows = runQuery(query) 
+    print('***** Compute the ctr for each OwnerId *****')
+    d = {}
+    for row in rows:
+	if d.has_key(row[0]):
+		d[row[0]] += Decimal(row[2]) / Decimal(row[3])
+	else:
+		d[row[0]] = Decimal(row[2]) / Decimal(row[3])	
+
+    for m,n in d.items():
+	print('(OwnerId: {}) ctr = {}'.format(m,n))
+    print('')
+
+def runQuery3(query):
+	rows = runQuery(query)
+        print('***** Compute the ctr for OwnerId = 1, AdId = 3 *****')
+	for row in rows:
+		print('(OwnerId: {}, AdId: {}) ctr = {}'.format(row[0], row[1], Decimal(row[2]) / Decimal(row[3])))
+	print('')
+
+def runQuery4(query):
+    rows = runQuery(query) 
+    print('***** Compute the ctr for OwnerId = 2 *****')
+    d = {}
+    for row in rows:
+	if d.has_key(row[0]):
+		d[row[0]] += Decimal(row[2]) / Decimal(row[3])
+	else:
+		d[row[0]] = Decimal(row[2]) / Decimal(row[3])	
+
+    print('(OwnerId: {}) ctr = {}'.format(2, d[2]))
+    print('')
+
+def main():
+    cluster = Cluster(['127.0.0.1'])
+    session = cluster.connect()
+
+    log.info("creating keyspace...")
+    session.execute("""
+        CREATE KEYSPACE IF NOT EXISTS %s
+        WITH replication = { 'class': 'SimpleStrategy', 'replication_factor': '2' }
+        """ % KEYSPACE)
+
+    log.info("setting keyspace...")
+    session.set_keyspace(KEYSPACE)
+
+    log.info("creating table...")
+    session.execute("""
+	CREATE TABLE clicksImpressions (
+	    OwnerId int,
+	    AdId int,
+	    numClicks int,
+	    numImpressions int,
+	    PRIMARY KEY (OwnerId, AdId)
+	)
+        """)
+
+    prepared = session.prepare("""
+        INSERT INTO clicksImpressions (OwnerId, AdId, numClicks, numImpressions)
+        VALUES (?, ?, ?, ?)
+        """)
+
+    row = []
+    row.append([3, 4, 1, 36])
+    row.append([1, 1, 1, 10])
+    row.append([1, 2, 0, 5])
+    row.append([1, 3, 1, 20])
+    row.append([1, 4, 0, 15])
+    row.append([2, 1, 0, 10])
+    row.append([2, 2, 0, 55])
+    row.append([2, 3, 0, 13])
+    row.append([2, 4, 0, 21])
+    row.append([3, 1, 1, 32])
+    row.append([3, 2, 0, 23])
+    row.append([3, 3, 2, 44])
+
+    for i in range(len(row)):
+        log.info("inserting row %d" % i)
+        session.execute(prepared, (row[i][0], row[i][1], row[i][2], row[i][3]))
+
+    future = session.execute_async("SELECT * FROM clicksImpressions")
+
+    log.info("OwnerId\tAddId\tnumClicks\tnumImpressions")
+    log.info("---\t----\t----\t----")
+
+    try:
+        lines = future.result()
+    except Exception:
+        log.exception()
+
+    for line in lines:
+        print line[0], line[1], line[2], line[3]
+        log.info('\t' + str(line))
+
+    selectAll  = session.execute_async("SELECT * FROM clicksImpressions")
+    selectOneThree = session.execute_async("SELECT * FROM clicksImpressions WHERE OwnerId = 1 and AdId = 3")
+    runQuery1(selectAll)
+    runQuery2(selectAll)
+    runQuery3(selectOneThree)
+    runQuery4(selectAll)
+
+    session.execute("DROP KEYSPACE " + KEYSPACE)
+
+if __name__ == "__main__":
+    main()

@@ -1,0 +1,542 @@
+(1) Import:
+
+terrapin@terrapin-VirtualBox:~$ mongoimport --db mydb --collection zipcodes --file /home/terrapin/zipData.json
+connected to: 127.0.0.1
+Tue Nov 11 19:23:16.218 check 9 29352
+Tue Nov 11 19:23:17.084 imported 29352 objects
+
+(2) Insert:
+
+db.zipcodes.insert(
+   {
+     "_id" : "99950",
+     "city" : "KETCHIKAN",
+     "loc" : [ -133.18479, 55.942471 ],
+     "pop" : 422,
+     "state" : "AK"
+   }
+)
+
+(3) Return cities with population less than 5 million grouped by state:
+
+> db.zipcodes.find( { pop: { $lt: 5*1000*1000 } }, { state: 1, city: 1, _id: 0 } )
+{ "city" : "AGAWAM", "state" : "MA" }
+{ "city" : "CUSHMAN", "state" : "MA" }
+{ "city" : "BARRE", "state" : "MA" }
+{ "city" : "BELCHERTOWN", "state" : "MA" }
+{ "city" : "BLANDFORD", "state" : "MA" }
+{ "city" : "BRIMFIELD", "state" : "MA" }
+{ "city" : "CHESTER", "state" : "MA" }
+{ "city" : "CHESTERFIELD", "state" : "MA" }
+{ "city" : "CHICOPEE", "state" : "MA" }
+{ "city" : "CHICOPEE", "state" : "MA" }
+{ "city" : "WESTOVER AFB", "state" : "MA" }
+{ "city" : "CUMMINGTON", "state" : "MA" }
+{ "city" : "MOUNT TOM", "state" : "MA" }
+{ "city" : "EAST LONGMEADOW", "state" : "MA" }
+{ "city" : "FEEDING HILLS", "state" : "MA" }
+{ "city" : "GILBERTVILLE", "state" : "MA" }
+{ "city" : "GOSHEN", "state" : "MA" }
+{ "city" : "GRANBY", "state" : "MA" }
+{ "city" : "TOLLAND", "state" : "MA" }
+{ "city" : "HADLEY", "state" : "MA" }
+Type "it" for more
+
+
+(4) Return states sorted by their total city population:
+
+> db.zipcodes.aggregate({
+       $group : {
+           _id : "$state",
+           totalPop : { $sum : "$pop" }
+       }}, {
+       $sort : {
+           totalPop : -1 
+       }
+   })
+
+{
+	"result" : [
+		{
+			"_id" : "CA",
+			"totalPop" : 29754890
+		},
+		{
+			"_id" : "NY",
+			"totalPop" : 17990402
+		},
+		{
+			"_id" : "TX",
+			"totalPop" : 16984601
+		},
+		{
+			"_id" : "FL",
+			"totalPop" : 12686644
+		},
+		{
+			"_id" : "PA",
+			"totalPop" : 11881643
+		},
+		{
+			"_id" : "IL",
+			"totalPop" : 11427576
+		},
+		{
+			"_id" : "OH",
+			"totalPop" : 10846517
+		},
+		{
+			"_id" : "MI",
+			"totalPop" : 9295297
+		},
+		{
+			"_id" : "NJ",
+			"totalPop" : 7730188
+		},
+		{
+			"_id" : "NC",
+			"totalPop" : 6628637
+		},
+		{
+			"_id" : "GA",
+			"totalPop" : 6478216
+		},
+		{
+			"_id" : "VA",
+			"totalPop" : 6181479
+		},
+		{
+			"_id" : "MA",
+			"totalPop" : 6016425
+		},
+		{
+			"_id" : "IN",
+			"totalPop" : 5544136
+		},
+		{
+			"_id" : "MO",
+			"totalPop" : 5110648
+		},
+		{
+			"_id" : "WI",
+			"totalPop" : 4891769
+		},
+		{
+			"_id" : "TN",
+			"totalPop" : 4876457
+		},
+		{
+			"_id" : "WA",
+			"totalPop" : 4866692
+		},
+		{
+			"_id" : "MD",
+			"totalPop" : 4781379
+		},
+		{
+			"_id" : "MN",
+			"totalPop" : 4372982
+		},
+		{
+			"_id" : "LA",
+			"totalPop" : 4217595
+		},
+		{
+			"_id" : "AL",
+			"totalPop" : 4040587
+		},
+		{
+			"_id" : "KY",
+			"totalPop" : 3675484
+		},
+		{
+			"_id" : "AZ",
+			"totalPop" : 3665228
+		},
+		{
+			"_id" : "SC",
+			"totalPop" : 3486703
+		},
+		{
+			"_id" : "CO",
+			"totalPop" : 3293755
+		},
+		{
+			"_id" : "CT",
+			"totalPop" : 3287116
+		},
+		{
+			"_id" : "OK",
+			"totalPop" : 3145585
+		},
+		{
+			"_id" : "OR",
+			"totalPop" : 2842321
+		},
+		{
+			"_id" : "IA",
+			"totalPop" : 2776420
+		},
+		{
+			"_id" : "MS",
+			"totalPop" : 2573216
+		},
+		{
+			"_id" : "KS",
+			"totalPop" : 2475285
+		},
+		{
+			"_id" : "AR",
+			"totalPop" : 2350725
+		},
+		{
+			"_id" : "WV",
+			"totalPop" : 1793146
+		},
+		{
+			"_id" : "UT",
+			"totalPop" : 1722850
+		},
+		{
+			"_id" : "NE",
+			"totalPop" : 1578139
+		},
+		{
+			"_id" : "NM",
+			"totalPop" : 1515069
+		},
+		{
+			"_id" : "ME",
+			"totalPop" : 1226648
+		},
+		{
+			"_id" : "NV",
+			"totalPop" : 1201833
+		},
+		{
+			"_id" : "NH",
+			"totalPop" : 1109252
+		},
+		{
+			"_id" : "HI",
+			"totalPop" : 1108229
+		},
+		{
+			"_id" : "ID",
+			"totalPop" : 1006749
+		},
+		{
+			"_id" : "RI",
+			"totalPop" : 1003218
+		},
+		{
+			"_id" : "MT",
+			"totalPop" : 798948
+		},
+		{
+			"_id" : "SD",
+			"totalPop" : 695397
+		},
+		{
+			"_id" : "DE",
+			"totalPop" : 666168
+		},
+		{
+			"_id" : "ND",
+			"totalPop" : 638272
+		},
+		{
+			"_id" : "DC",
+			"totalPop" : 606900
+		},
+		{
+			"_id" : "VT",
+			"totalPop" : 562758
+		},
+		{
+			"_id" : "AK",
+			"totalPop" : 544698
+		},
+		{
+			"_id" : "WY",
+			"totalPop" : 453528
+		}
+	],
+	"ok" : 1
+}
+
+(5) Return the cities with minimum population by state:
+
+db.zipcodes.aggregate(
+       { $group: {
+           _id: { state: "$state", city: "$city" },
+           pop: { $sum: "$pop" }
+       }},
+       { $sort: { pop: 1 } },
+       { $group: {
+           _id : "$_id.state",
+           minPopCity: { $first: "$_id.city" },
+           minPop:  { $first: "$pop" }
+       }
+   })
+
+{
+	"result" : [
+		{
+			"_id" : "IN",
+			"minPopCity" : "WESTPOINT",
+			"minPop" : 145
+		},
+		{
+			"_id" : "RI",
+			"minPopCity" : "CLAYVILLE",
+			"minPop" : 45
+		},
+		{
+			"_id" : "OH",
+			"minPopCity" : "ISLE SAINT GEORG",
+			"minPop" : 38
+		},
+		{
+			"_id" : "MD",
+			"minPopCity" : "ANNAPOLIS JUNCTI",
+			"minPop" : 32
+		},
+		{
+			"_id" : "NH",
+			"minPopCity" : "WEST NOTTINGHAM",
+			"minPop" : 27
+		},
+		{
+			"_id" : "MA",
+			"minPopCity" : "BUCKLAND",
+			"minPop" : 16
+		},
+		{
+			"_id" : "DC",
+			"minPopCity" : "PENTAGON",
+			"minPop" : 21
+		},
+		{
+			"_id" : "MN",
+			"minPopCity" : "JOHNSON",
+			"minPop" : 12
+		},
+		{
+			"_id" : "ND",
+			"minPopCity" : "TROTTERS",
+			"minPop" : 12
+		},
+		{
+			"_id" : "UT",
+			"minPopCity" : "MODENA",
+			"minPop" : 9
+		},
+		{
+			"_id" : "OK",
+			"minPopCity" : "SOUTHARD",
+			"minPop" : 8
+		},
+		{
+			"_id" : "MT",
+			"minPopCity" : "HOMESTEAD",
+			"minPop" : 7
+		},
+		{
+			"_id" : "NE",
+			"minPopCity" : "LAKESIDE",
+			"minPop" : 5
+		},
+		{
+			"_id" : "TN",
+			"minPopCity" : "ALLRED",
+			"minPop" : 2
+		},
+		{
+			"_id" : "WA",
+			"minPopCity" : "BENGE",
+			"minPop" : 2
+		},
+		{
+			"_id" : "DE",
+			"minPopCity" : "BETHEL",
+			"minPop" : 108
+		},
+		{
+			"_id" : "NV",
+			"minPopCity" : "TUSCARORA",
+			"minPop" : 1
+		},
+		{
+			"_id" : "CT",
+			"minPopCity" : "EAST KILLINGLY",
+			"minPop" : 25
+		},
+		{
+			"_id" : "AL",
+			"minPopCity" : "ALLEN",
+			"minPop" : 0
+		},
+		{
+			"_id" : "VA",
+			"minPopCity" : "WALLOPS ISLAND",
+			"minPop" : 0
+		},
+		{
+			"_id" : "LA",
+			"minPopCity" : "LAFITTE",
+			"minPop" : 0
+		},
+		{
+			"_id" : "MS",
+			"minPopCity" : "CHUNKY",
+			"minPop" : 79
+		},
+		{
+			"_id" : "KS",
+			"minPopCity" : "ARNOLD",
+			"minPop" : 0
+		},
+		{
+			"_id" : "AZ",
+			"minPopCity" : "HUALAPAI",
+			"minPop" : 2
+		},
+		{
+			"_id" : "CO",
+			"minPopCity" : "CHEYENNE MTN AFB",
+			"minPop" : 0
+		},
+		{
+			"_id" : "IA",
+			"minPopCity" : "DOUDS",
+			"minPop" : 15
+		},
+		{
+			"_id" : "NC",
+			"minPopCity" : "GLOUCESTER",
+			"minPop" : 0
+		},
+		{
+			"_id" : "SC",
+			"minPopCity" : "QUINBY",
+			"minPop" : 0
+		},
+		{
+			"_id" : "PA",
+			"minPopCity" : "HAMILTON",
+			"minPop" : 0
+		},
+		{
+			"_id" : "VT",
+			"minPopCity" : "UNIV OF VERMONT",
+			"minPop" : 0
+		},
+		{
+			"_id" : "CA",
+			"minPopCity" : "OREGON HOUSE",
+			"minPop" : 0
+		},
+		{
+			"_id" : "WI",
+			"minPopCity" : "CLAM LAKE",
+			"minPop" : 2
+		},
+		{
+			"_id" : "KY",
+			"minPopCity" : "TATEVILLE",
+			"minPop" : 0
+		},
+		{
+			"_id" : "ID",
+			"minPopCity" : "KEUTERVILLE",
+			"minPop" : 0
+		},
+		{
+			"_id" : "OR",
+			"minPopCity" : "LYONS",
+			"minPop" : 0
+		},
+		{
+			"_id" : "NM",
+			"minPopCity" : "MONUMENT",
+			"minPop" : 0
+		},
+		{
+			"_id" : "FL",
+			"minPopCity" : "CECIL FIELD NAS",
+			"minPop" : 0
+		},
+		{
+			"_id" : "NY",
+			"minPopCity" : "EAST SPRINGFIELD",
+			"minPop" : 0
+		},
+		{
+			"_id" : "WY",
+			"minPopCity" : "LOST SPRINGS",
+			"minPop" : 6
+		},
+		{
+			"_id" : "MI",
+			"minPopCity" : "LELAND",
+			"minPop" : 0
+		},
+		{
+			"_id" : "HI",
+			"minPopCity" : "NINOLE",
+			"minPop" : 0
+		},
+		{
+			"_id" : "MO",
+			"minPopCity" : "BENDAVIS",
+			"minPop" : 44
+		},
+		{
+			"_id" : "TX",
+			"minPopCity" : "ECLETO",
+			"minPop" : 0
+		},
+		{
+			"_id" : "IL",
+			"minPopCity" : "ANCONA",
+			"minPop" : 38
+		},
+		{
+			"_id" : "NJ",
+			"minPopCity" : "IMLAYSTOWN",
+			"minPop" : 17
+		},
+		{
+			"_id" : "AR",
+			"minPopCity" : "TOMATO",
+			"minPop" : 0
+		},
+		{
+			"_id" : "SD",
+			"minPopCity" : "ZEONA",
+			"minPop" : 8
+		},
+		{
+			"_id" : "AK",
+			"minPopCity" : "SHUNGNAK",
+			"minPop" : 0
+		},
+		{
+			"_id" : "GA",
+			"minPopCity" : "FORT STEWART",
+			"minPop" : 0
+		},
+		{
+			"_id" : "ME",
+			"minPopCity" : "BUSTINS ISLAND",
+			"minPop" : 0
+		},
+		{
+			"_id" : "WV",
+			"minPopCity" : "MOUNT CARBON",
+			"minPop" : 0
+		}
+	],
+	"ok" : 1
+}

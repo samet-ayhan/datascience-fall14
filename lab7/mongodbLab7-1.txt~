@@ -1,0 +1,42 @@
+(1) Import:
+
+terrapin@terrapin-VirtualBox:~$ mongoimport --db mydb --collection zipcodes --file /home/terrapin/zipData.json
+connected to: 127.0.0.1
+Tue Nov 11 19:23:16.218 check 9 29352
+Tue Nov 11 19:23:17.084 imported 29352 objects
+
+(2) Insert:
+
+db.zipcodes.insert(
+   {
+     "_id" : "99950",
+     "city" : "KETCHIKAN",
+     "loc" : [ -133.18479, 55.942471 ],
+     "pop" : 422,
+     "state" : "AK"
+   }
+)
+
+(3) Return cities with population less than 5 million grouped by state:
+
+db.zipcodes.aggregate( [
+   { $group : { _id : { state : "$state", city : "$city" }, totalPop : { $sum : "$totalPop" } } },
+   { $match : {totalPop : { $lt : 5*1000*1000 } } } 
+] )
+
+(4) Return states sorted by their total city population:
+
+
+db.zipcodes.aggregate( [
+   { $group : { _id : { state : "$state", city : "$city" }, pop : { $sum : "$pop" } } },
+   { $sort: { pop: 1 } },
+                       { $group:
+                         { _id : "$_id.state"}}
+] )
+
+db.zipcodes.aggregate( { $group:
+                         { _id: { state: "$state", city: "$city" },
+                           pop: { $sum: "$pop" } } },
+                       { $sort: { pop: 1 } },
+                       { $group:
+                         { _id : "$_id.state" } } )

@@ -1,0 +1,31 @@
+terrapin@terrapin-VirtualBox:~/datascience-fall14/lab7$ ./cassandraLab7-2.py
+/usr/local/lib/python2.7/dist-packages/cassandra/util.py:360: UserWarning: The blist library is not available, so a pure python list-based set will be used in place of blist.sortedset for set collection values. You can find the blist library here: https://pypi.python.org/pypi/blist/
+  "The blist library is not available, so a pure python list-based set will "
+
+***** Find the ctr (numClicks/numImpressions) for each OwnerId, AdId pair *****
+(OwnerId: 1, AdId: 1) ctr = 0.1
+(OwnerId: 1, AdId: 2) ctr = 0
+(OwnerId: 1, AdId: 3) ctr = 0.05
+(OwnerId: 1, AdId: 4) ctr = 0
+(OwnerId: 2, AdId: 1) ctr = 0
+(OwnerId: 2, AdId: 2) ctr = 0
+(OwnerId: 2, AdId: 3) ctr = 0
+(OwnerId: 2, AdId: 4) ctr = 0
+(OwnerId: 3, AdId: 1) ctr = 0.03125
+(OwnerId: 3, AdId: 2) ctr = 0
+(OwnerId: 3, AdId: 3) ctr = 0.04545454545454545454545454545
+(OwnerId: 3, AdId: 4) ctr = 0.02777777777777777777777777778
+
+***** Compute the ctr for each OwnerId *****
+(OwnerId: 1) ctr = 0.15
+(OwnerId: 2) ctr = 0
+(OwnerId: 3) ctr = 0.1044823232323232323232323232
+
+***** Compute the ctr for OwnerId = 1, AdId = 3 *****
+(OwnerId: 1, AdId: 3) ctr = 0.05
+
+***** Compute the ctr for OwnerId = 2 *****
+(OwnerId: 2) ctr = 0
+
+
+

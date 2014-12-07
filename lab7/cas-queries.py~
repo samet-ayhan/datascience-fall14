@@ -1,0 +1,71 @@
+#!/usr/bin/env python
+
+# Copyright 2013-2014 DataStax, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+import logging
+from decimal import Decimal
+
+log = logging.getLogger()
+#log.setLevel('DEBUG')
+log.setLevel('WARN')
+handler = logging.StreamHandler()
+handler.setFormatter(logging.Formatter("%(asctime)s [%(levelname)s] %(name)s: %(message)s"))
+log.addHandler(handler)
+
+from cassandra import ConsistencyLevel
+from cassandra.cluster import Cluster
+from cassandra.query import SimpleStatement
+
+KEYSPACE = "ctr"
+
+
+def main():
+
+    cluster = Cluster(['127.0.0.1'])
+    session = cluster.connect()
+
+    log.info("creating keyspace...")
+    session.execute("""
+        CREATE KEYSPACE IF NOT EXISTS %s
+        WITH replication = { 'class': 'SimpleStrategy', 'replication_factor': '2' }
+        """ % KEYSPACE)
+
+    log.info("setting keyspace...")
+    session.set_keyspace(KEYSPACE)
+
+    #rows = session.execute('SELECT * FROM clicksImpressions WHERE OwnerId=%s AND AdId=%d')
+
+    ownerid = '1'
+    adid = [1,2,3,4]
+    query = "SELECT * FROM clicksImpressions WHERE OwnerId=%ownerid"
+    future = session.execute_async(query, [ownerid])
+
+
+    try:
+        rows = future.result()
+        owner = rows[0]
+        print owner.ownerid, owner.adid
+    except ReadTimeout:
+        log.exception("Query timed out:")
+
+    #for row in rows:
+        #print row.ownerid, row.adid, Decimal(row.numclicks)/Decimal(row.numimpressions)
+
+if __name__ == "__main__":
+    main()
+
+
+
+
